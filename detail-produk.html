@@ -74,7 +74,7 @@
                   <input type="number" min="1" max="10" value="${jumlahAwal}" class="form-control w-50" id="jumlah">
                 </div>
                 <p class="fw-bold">Total: Rp<span id="total">${total.toLocaleString('id-ID')}</span></p>
-                <button class="btn btn-outline-success w-100 mb-2">+ Keranjang</button>
+                <button onclick="tambahKeKeranjang()" class="btn btn-outline-success w-100 mb-2">+ Keranjang</button>
                 <button onclick="beliSekarang()" class="btn btn-success w-100">Beli Sekarang</button>
               </div>
             </div>
@@ -98,6 +98,35 @@
       const jumlah = document.getElementById('jumlah').value || 1;
       window.location.href = `checkout.html?id=${id}&jumlah=${jumlah}`;
     }
+
+     function tambahKeKeranjang() {
+    const jumlah = parseInt(document.getElementById('jumlah').value);
+    const keranjang = JSON.parse(localStorage.getItem("keranjang")) || [];
+
+    // ambil data dari fetch
+    fetch('katalog.php?id=' + id)
+      .then(res => res.json())
+      .then(data => {
+        const produk = {
+          id: data.id,
+          nama: data.nama_produk,
+          harga: parseInt(data.harga),
+          jumlah: jumlah,
+          gambar: 'images/' + data.gambar
+        };
+
+        // cek kalau produk sudah ada di keranjang
+        const index = keranjang.findIndex(p => p.id === produk.id);
+        if (index !== -1) {
+          keranjang[index].jumlah += jumlah;
+        } else {
+          keranjang.push(produk);
+        }
+
+        localStorage.setItem("keranjang", JSON.stringify(keranjang));
+        alert("Produk ditambahkan ke keranjang!");
+      });
+  }
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

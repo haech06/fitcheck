@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Riwayat Transaksi - FitCheck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-5">
+  <h2 class="mb-4 text-center">Riwayat Transaksi</h2>
+  <div id="riwayat-container" class="row g-3"></div>
+</div>
+
+<script>
+  fetch("ambil_pesanan.php")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("riwayat-container");
+
+      if (!data.length) {
+        container.innerHTML = `<div class="alert alert-info text-center">Belum ada transaksi.</div>`;
+        return;
+      }
+
+      data.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "col-md-6";
+        card.innerHTML = `
+          <div class="card shadow-sm">
+            <div class="row g-0">
+              <div class="col-4">
+                <img src="images/${p.gambar}" class="img-fluid rounded-start" alt="${p.nama_produk}">
+              </div>
+              <div class="col-8">
+                <div class="card-body">
+                  <h5 class="card-title">${p.nama_produk}</h5>
+                  <p class="card-text mb-1">Jumlah: ${p.jumlah}</p>
+                  <p class="card-text mb-1">Total: Rp${parseInt(p.total_harga).toLocaleString("id-ID")}</p>
+                  <p class="card-text"><small class="text-muted">Alamat: ${p.alamat}</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    })
+    .catch(err => {
+      document.getElementById("riwayat-container").innerHTML = `<div class="alert alert-danger">Gagal memuat data: ${err.message}</div>`;
+    });
+</script>
+</body>
+</html>
