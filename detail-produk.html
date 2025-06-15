@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Produk - FitCheck</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .sticky-box {
+      position: sticky;
+      top: 90px;
+    }
+    .price-before {
+      text-decoration: line-through;
+      color: #999;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <div class="container py-5" id="produk-detail">
+    <!-- Konten detail produk akan dimuat di sini -->
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    fetch('katalog.php?id=' + id)
+      .then(response => response.json())
+      .then(data => {
+        if (!data || Object.keys(data).length === 0) {
+          document.getElementById('produk-detail').innerHTML = '<p class="text-center text-danger">Produk tidak ditemukan.</p>';
+          return;
+        }
+
+        const harga = parseInt(data.harga);
+        const ongkir = 6500;
+        const jumlahAwal = 1;
+        const total = harga * jumlahAwal + ongkir;
+
+        document.getElementById('produk-detail').innerHTML = `
+          <div class="row g-4">
+            <!-- Gambar -->
+            <div class="col-md-4">
+              <img src="images/${data.gambar}" class="img-fluid rounded shadow" alt="${data.nama_produk}">
+            </div>
+
+            <!-- Info Produk -->
+            <div class="col-md-5">
+              <h4>${data.nama_produk}</h4>
+              <p class="text-muted mb-1">Terjual 250+ &nbsp; • &nbsp; ⭐ 4.8 (6 rating)</p>
+              <div class="mb-2">
+                <h5 class="text-success">Rp${harga.toLocaleString('id-ID')}</h5>
+              </div>
+
+              <h6 class="mt-4">Detail</h6>
+              <ul class="list-unstyled">
+                <li><strong>Kondisi:</strong> Thrift (Bekas Pakai)</li>
+                <li><strong>Min. Pemesanan:</strong> 1 Set</li>
+                <li><strong>Etalase:</strong> Semua Etalase</li>
+                <li><strong>Penjual:</strong> <a href="penjual.php?nama_toko=${encodeURIComponent(data.nama_toko)}" class="text-decoration-none fw-semibold text-primary">${data.nama_toko}</a></li>
+              </ul>
+              <p class="mt-2">${data.deskripsi || 'Produk fashion thrift berkualitas dalam bentuk one set dari FitCheck. Nyaman dan stylish!'}</p>
+
+              <hr>
+              <p><strong>Dikirim dari:</strong> Kota Jakarta Barat</p>
+              <p><strong>Ongkir:</strong> Rp${ongkir.toLocaleString('id-ID')}</p>
+              <p><em>Estimasi tiba:</em> Besok - 18 Jun</p>
+            </div>
+
+            <!-- Checkout Box -->
+            <div class="col-md-3">
+              <div class="border rounded p-3 bg-white shadow sticky-box">
+                <p class="mb-1">Terpilih: <strong>1 set</strong></p>
+                <div class="d-flex align-items-center mb-2">
+                  <label class="me-2">Jumlah:</label>
+                  <input type="number" min="1" max="10" value="${jumlahAwal}" class="form-control w-50" id="jumlah">
+                </div>
+                <p class="fw-bold">Total: Rp<span id="total">${total.toLocaleString('id-ID')}</span></p>
+                <button class="btn btn-outline-success w-100 mb-2">+ Keranjang</button>
+                <button class="btn btn-success w-100">Beli Sekarang</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Update total harga saat jumlah berubah
+        document.getElementById('jumlah').addEventListener('input', function () {
+          const qty = parseInt(this.value);
+          const totalBaru = harga * qty + ongkir;
+          document.getElementById('total').textContent = totalBaru.toLocaleString('id-ID');
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('produk-detail').innerHTML = '<p class="text-center text-danger">Gagal memuat detail produk.</p>';
+      });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
