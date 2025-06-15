@@ -6,6 +6,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
     .carousel-inner img {
       border-radius: 20px;
       object-fit: cover;
@@ -33,6 +36,14 @@
     .card:hover {
       transform: scale(1.02);
     }
+    /* Tambahan styling untuk section Tentang Kami */
+    #tentang-kami {
+      background-color: #f8f9fa;
+      padding: 60px 15px;
+      border-top: 1px solid #ddd;
+      margin-top: 50px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -49,7 +60,8 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link active" href="#">Beranda</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Kategori</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Tentang Kami</a></li>
+          <!-- Ubah link ini jadi scroll ke bagian tentang kami -->
+          <li class="nav-item"><a class="nav-link" href="#tentang-kami">Tentang Kami</a></li>
         </ul>
         <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Cari produk..." aria-label="Search">
@@ -109,6 +121,33 @@
       <!-- Produk akan dimuat di sini -->
     </div>
   </div>
+
+  <!-- BAGIAN TENTANG KAMI -->
+  <section id="tentang-kami" class="container py-5">
+  <h3 class="text-center mb-5 fw-bold" style="color:#28a745; letter-spacing: 1px;">
+    Tentang Kami
+  </h3>
+  <div class="row align-items-center">
+    <div class="col-md-6 mb-4 mb-md-0">
+      <img src="images/fitcheckteam.jpg" alt="FitCheck Team" class="img-fluid rounded shadow" />
+    </div>
+    <div class="col-md-6">
+      <p style="font-size: 1.1rem; color: #444;">
+        <strong>FitCheck</strong> adalah platform online shop yang fokus pada penjualan pakaian preloved dalam bentuk bundling “one set”. Kami percaya bahwa <span style="color:#28a745; font-weight:600;">fashion berkualitas</span> dan <span style="color:#28a745; font-weight:600;">ramah lingkungan</span> bisa dinikmati oleh semua orang dengan harga terjangkau.
+      </p>
+      <p style="font-size: 1.1rem; color: #444;">
+        Misi kami adalah memberikan pengalaman belanja yang mudah, aman, dan menyenangkan bagi para pecinta thrift fashion. Dengan seleksi produk yang ketat dan layanan pelanggan yang responsif, <span style="font-weight:600;">FitCheck berkomitmen</span> menjadi pilihan utama dalam gaya hidup sustainable di Indonesia.
+      </p>
+      <p style="font-size: 1.1rem; color: #444;">
+        Tim kami terdiri dari para penggemar fashion dan teknologi yang berdedikasi menghubungkan kamu dengan pilihan pakaian terbaik yang unik dan bergaya.
+      </p>
+      <p style="font-size: 1.1rem; color: #28a745; font-weight: 700;">
+        Terima kasih sudah menjadi bagian dari perjalanan FitCheck. Yuk, mulai <em>#FitCheckYourStyle</em>!
+      </p>
+    </div>
+  </div>
+</section>
+
 
   <script>
     fetch('katalog.php')
