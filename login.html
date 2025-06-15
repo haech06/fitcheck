@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - FitCheck</title>
+  <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');</style>
+</head>
+<body class="bg-light" style="font-family: 'Poppins', sans-serif;">
+
+  <div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow rounded-4" style="width: 100%; max-width: 400px;">
+      <h3 class="text-center mb-4 text-success fw-bold">Login Akun</h3>
+      <form action="login.php" method="POST">
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Login</button>
+      </form>
+      <div class="text-center mt-3">
+        <p>Belum punya akun?</p>
+        <a href="register.html" class="btn btn-outline-success w-100">Daftar Akun Baru</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
