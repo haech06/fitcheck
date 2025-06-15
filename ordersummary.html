@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Summary - FitCheck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f0f2f5; }
+    .summary-box {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="summary-box mx-auto" style="max-width: 700px;" id="summary-container">
+    <!-- Akan diisi dengan JavaScript -->
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  const jumlah = parseInt(params.get("jumlah")) || 1;
+  const total = parseInt(params.get("total")) || 0;
+
+  if (!id || !total) {
+    document.getElementById("summary-container").innerHTML = `
+      <div class="alert alert-danger text-center">Data pesanan tidak lengkap.</div>`;
+  } else {
+    fetch("katalog.php?id=" + id)
+      .then(res => res.json())
+      .then(data => {
+        const ongkir = 6500;
+        const subtotal = parseInt(data.harga) * jumlah;
+        document.getElementById("summary-container").innerHTML = `
+          <h3 class="text-center mb-4">Pesanan Berhasil</h3>
+          <div class="d-flex align-items-center mb-3">
+            <img src="images/${data.gambar}" width="100" class="img-thumbnail me-3">
+            <div>
+              <h5>${data.nama_produk}</h5>
+              <p class="mb-1">Jumlah: ${jumlah} set</p>
+              <p class="mb-0">Toko: <strong>${data.nama_toko}</strong></p>
+            </div>
+          </div>
+          <ul class="list-group mb-4">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Subtotal</span>
+              <span>Rp${subtotal.toLocaleString("id-ID")}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Ongkir</span>
+              <span>Rp${ongkir.toLocaleString("id-ID")}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between fw-bold">
+              <span>Total Bayar</span>
+              <span>Rp${total.toLocaleString("id-ID")}</span>
+            </li>
+          </ul>
+          <div class="text-center">
+            <a href="dashboard-pembeli.html" class="btn btn-success w-100">Kembali ke Dashboard</a>
+          </div>
+        `;
+      })
+      .catch(err => {
+        document.getElementById("summary-container").innerHTML = `
+          <div class="alert alert-danger text-center">Gagal memuat data pesanan.</div>`;
+      });
+  }
+</script>
+</body>
+</html>

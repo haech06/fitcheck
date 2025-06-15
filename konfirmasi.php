@@ -1,33 +1,40 @@
 <?php
 header('Content-Type: application/json');
 
-include 'koneksi.php';
+// Koneksi ke database (edit sesuai config kamu)
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "fitcheck";
 
-$id_produk = $_GET['id_produk'] ?? '';
-$nama_produk = $_GET['nama_produk'] ?? '';
-$jumlah = $_GET['jumlah'] ?? 1;
-$total_harga = $_GET['total_harga'] ?? 0;
-$alamat = $_POST['alamat'] ?? '';
-$metode_pembayaran = "QRIS";
-$status = "Menunggu Konfirmasi";
-$waktu_checkout = date("Y-m-d H:i:s");
-
-// Validasi dasar
-if (!$id_produk || !$nama_produk || !$alamat) {
-  echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
-  exit;
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+    echo json_encode(["status" => "error", "message" => "Koneksi gagal"]);
+    exit;
 }
 
-// Simpan ke database
-$stmt = $koneksi->prepare("INSERT INTO checkout (id_produk, nama_produk, jumlah, total_harga, alamat, metode_pembayaran, status, waktu_checkout) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssisssss", $id_produk, $nama_produk, $jumlah, $total_harga, $alamat, $metode_pembayaran, $status, $waktu_checkout);
+// Ambil data dari POST
+$id_produk = $_POST['id_produk'] ?? '';
+$nama_produk = $_POST['nama_produk'] ?? '';
+$jumlah = $_POST['jumlah'] ?? 0;
+$total_harga = $_POST['total_harga'] ?? 0;
+$alamat = $_POST['alamat'] ?? '';
+
+if (!$id_produk || !$nama_produk || !$jumlah || !$total_harga || !$alamat) {
+    echo json_encode(["status" => "error", "message" => "Data tidak lengkap"]);
+    exit;
+}
+
+// Simpan ke database (asumsi kamu punya tabel pesanan)
+$stmt = $conn->prepare("INSERT INTO pesanan (id_produk, nama_produk, jumlah, total_harga, alamat, status) VALUES (?, ?, ?, ?, ?, 'Menunggu Konfirmasi')");
+$stmt->bind_param("ssids", $id_produk, $nama_produk, $jumlah, $total_harga, $alamat);
 
 if ($stmt->execute()) {
-  echo json_encode(["status" => "success"]);
+    echo json_encode(["status" => "success"]);
 } else {
-  echo json_encode(["status" => "error", "message" => "Gagal menyimpan data"]);
+    echo json_encode(["status" => "error", "message" => "Gagal menyimpan ke database"]);
 }
 
 $stmt->close();
-$koneksi->close();
-?> 
+$conn->close();
+?>

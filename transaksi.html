@@ -2,72 +2,101 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Transaksi Anda - FitCheck</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transaksi - FitCheck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #f8f9fa; }
-    .transaksi-card { background: #fff; border-radius: 15px; padding: 30px; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
-    .qr-image { border: 2px dashed #ccc; padding: 10px; border-radius: 10px; background: #fff; }
+    .card { box-shadow: 0 0 10px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
-  <div class="container py-5">
-    <div id="transaksi-container" class="transaksi-card">
-      <p>Memuat transaksi...</p>
-    </div>
-  </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const id          = params.get("id");
-    const jumlah      = parseInt(params.get("jumlah") || 1);
-    const nama_produk = params.get("nama_produk");
-    const total       = parseInt(params.get("total") || 0);
-    const alamat      = params.get("alamat");
-    const ongkir      = 6500;
-    const waktu       = new Date().toLocaleString("id-ID");
+<div class="container py-5" id="transaksi-container"></div>
 
-    fetch(`katalog.php?id=${id}`)
-      .then(r => r.json())
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  const jumlah = parseInt(params.get("jumlah")) || 1;
+  const alamat = params.get("alamat");
+  const ongkir = 6500;
+
+  if (!id || !alamat) {
+    document.getElementById("transaksi-container").innerHTML = `
+      <div class="alert alert-danger text-center">Data tidak lengkap.</div>`;
+  } else {
+    fetch("katalog.php?id=" + id)
+      .then(res => res.json())
       .then(data => {
+        if (!data || Object.keys(data).length === 0) {
+          document.getElementById("transaksi-container").innerHTML = `
+            <div class="alert alert-danger text-center">Produk tidak ditemukan.</div>`;
+          return;
+        }
+
+        const harga = parseInt(data.harga);
+        const total_harga = harga * jumlah + ongkir;
+        const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=fitcheck.com/pembayaran?id=${id}&jumlah=${jumlah}&total=${total_harga}`;
+
         document.getElementById("transaksi-container").innerHTML = `
-          <h3 class="mb-4 text-center">Transaksi Anda</h3>
-          <div class="row g-4">
-            <div class="col-md-7">
-              <div class="d-flex mb-3">
-                <img src="images/${data.gambar}" width="130" class="img-thumbnail me-3">
-                <div>
-                  <h5>${nama_produk}</h5>
-                  <p class="mb-1">Jumlah: <strong>${jumlah}</strong> set</p>
-                  <p class="mb-1">Harga Satuan: <strong>Rp${parseInt(data.harga).toLocaleString("id-ID")}</strong></p>
-                  <p class="mb-1">Ongkos Kirim: <strong>Rp${ongkir.toLocaleString("id-ID")}</strong></p>
-                  <p class="mb-1"><strong>Alamat:</strong> ${alamat.replace(/\n/g, "<br>")}</p>
-                  <p class="text-muted mt-2">Waktu Checkout: ${waktu}</p>
+          <div class="card p-4">
+            <h3 class="mb-4">Konfirmasi Pembayaran</h3>
+            <div class="row">
+              <div class="col-md-6">
+                <img src="images/${data.gambar}" class="img-fluid rounded mb-3">
+                <p><strong>${data.nama_produk}</strong><br>
+                   Jumlah: ${jumlah} set<br>
+                   Alamat: ${alamat}</p>
+                <div class="mt-4">
+                  <h5>Scan QR untuk Bayar</h5>
+                  <img src="${qrURL}" alt="QR Code Pembayaran" class="img-thumbnail">
+                  <p class="text-muted small mt-2">QR ini akan membawa ke halaman pembayaran QRIS FitCheck</p>
                 </div>
               </div>
-            </div>
-            <div class="col-md-5 text-center">
-              <h5>Total Bayar</h5>
-              <h2 class="text-success mb-3">Rp${total.toLocaleString("id-ID")}</h2>
-              <p class="mb-2">Scan QR untuk membayar:</p>
-              <div class="qr-image mx-auto mb-3">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=fitcheck.com/pembayaran?id=${id}&jumlah=${jumlah}&total=${total}" alt="QR Code Pembayaran">
+              <div class="col-md-6">
+                <h5>Total Pembayaran:</h5>
+                <h4 class="text-success mb-3">Rp${total_harga.toLocaleString("id-ID")}</h4>
+                <p>Setelah kamu melakukan pembayaran, klik tombol di bawah ini:</p>
+                <button class="btn btn-primary w-100" id="btnKonfirmasi">Konfirmasi Pembayaran</button>
               </div>
-              <p class="text-muted small">* QR akan membawa kamu ke metode pembayaran QRIS</p>
-              <button class="btn btn-success w-100" onclick="konfirmasiPesanan()">Konfirmasi Pesanan</button>
             </div>
           </div>
         `;
-      });
 
-    function konfirmasiPesanan() {
-      // Redirect ke konfirmasi.html dengan data lengkap
-      const url = new URL("konfirmasi.html", window.location.origin);
-      const params = new URLSearchParams(window.location.search);
-      url.search = params.toString();
-      window.location.href = url.toString();
-    }
-  </script>
+        // Event tombol konfirmasi
+        document.getElementById("btnKonfirmasi").onclick = () => {
+          fetch("konfirmasi.php", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              id_produk: id,
+              nama_produk: data.nama_produk,
+              jumlah: jumlah,
+              total_harga: total_harga,
+              alamat: alamat
+            })
+          })
+          .then(res => res.json())
+          .then(response => {
+            if (response.status === "success") {
+              // redirect ke halaman order summary
+              window.location.href = `ordersummary.html?id=${id}&jumlah=${jumlah}&total=${total_harga}`;
+            } else {
+              alert("Gagal menyimpan pesanan: " + (response.message || "unknown error"));
+            }
+          })
+          .catch(err => {
+            alert("Terjadi kesalahan: " + err.message);
+          });
+        };
+      })
+      .catch(error => {
+        console.error(error);
+        document.getElementById("transaksi-container").innerHTML = `
+          <div class="alert alert-danger text-center">Gagal memuat data produk.</div>`;
+      });
+  }
+</script>
+
 </body>
 </html>
